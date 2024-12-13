@@ -63,3 +63,6 @@ The Personal Expense Tracker application enables users to create and log into pe
     npm install @aws-sdk/lib-dynamodb
 
 ## Challenges Faced
+- I was rusty on unit testing going into this assignment, so I did have to look up example tests/videos in order to figure out what should be tested, and how to integrate that with AWS.
+- Integrating serverless start to finish was more difficult than I imagined, and I did end up initially manually doing some things which could have been more smoothly integrated with it.
+- API calls are a relatively recent skill to have learned, so once I was able to cement what calls needed to be made for each function, the layout made more sense.
