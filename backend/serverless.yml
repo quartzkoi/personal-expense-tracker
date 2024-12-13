@@ -1,0 +1,102 @@
+service: personal-expense-tracker
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  environment:
+    EXPENSES_TABLE: PersonalExpensesTable
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EXPENSES_TABLE}
+        - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EXPENSES_TABLE}/index/*
+
+functions:
+  createExpense:
+    handler: lambdas/createExpense.handler
+    events:
+      - http:
+          path: expenses
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  getExpenses:
+    handler: lambdas/getExpenses.handler
+    events:
+      - http:
+          path: expenses
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  updateExpense:
+    handler: lambdas/updateExpense.handler
+    events:
+      - http:
+          path: expenses/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  deleteExpense:
+    handler: lambdas/deleteExpense.handler
+    events:
+      - http:
+          path: expenses/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+resources:
+  Resources:
+    ExpensesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.EXPENSES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: CognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        ProviderARNs: 
+          - ${ssm:/personal-expense-tracker/cognito-user-pool-arn}

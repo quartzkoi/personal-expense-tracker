@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>Personal Expense Tracker</h1>
+        
+        <div id="auth-section">
+            <button id="sign-up-btn">Sign Up</button>
+            <button id="sign-in-btn">Sign In</button>
+            <button id="sign-out-btn" style="display:none;">Sign Out</button>
+        </div>
+
+        <div id="expense-section" style="display:none;">
+            <form id="expense-form">
+                <input type="number" id="amount" placeholder="Amount" required>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="food">Food</option>
+                    <option value="transport">Transport</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="utilities">Utilities</option>
+                </select>
+                <input type="text" id="description" placeholder="Description">
+                <input type="date" id="date">
+                <button type="submit">Add Expense</button>
+            </form>
+
+            <div id="expenses-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
